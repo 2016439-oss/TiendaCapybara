@@ -1,0 +1,44 @@
+<!doctype html>
+<!-- Indica que el documento utiliza el estándar HTML5. -->
+<html lang="es">
+  <head>
+    <!-- Permite mostrar caracteres como tildes y ñ correctamente. -->
+    <meta charset="utf-8">
+    <!-- Adapta la página a pantallas de computadoras y teléfonos. -->
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <!-- Texto que aparece en la pestaña del navegador. -->
+    <title>Tienda Capybara</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🦫%3C/text%3E%3C/svg%3E">
+    <!-- Carga la hoja que da estilo visual a la página. -->
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <!-- Encabezado fijo con el nombre del sistema. -->
+    <header><h1>🦫 Tienda Capybara</h1><p>Merch de capibaras · FastAPI + SQLite</p></header>
+    <main>
+      <!-- Resumen de ventas e inventario que calcula la API. -->
+      <section id="summary" class="summary"></section>
+      <!-- JavaScript agrega aquí los botones de cada sección. -->
+      <nav id="tabs"></nav>
+
+      <!-- Pantalla para registrar una venta completa. -->
+      <section id="pos" hidden></section>
+
+      <!-- Pantalla CRUD genérica: formulario + tabla de la entidad elegida. -->
+      <section id="crud">
+        <!-- JavaScript actualiza este título al cambiar de pestaña. -->
+        <h2 id="title"></h2>
+        <!-- JavaScript construye aquí el formulario de cada entidad. -->
+        <form id="form"></form>
+        <!-- Muestra mensajes de éxito o error accesibles al usuario. -->
+        <p id="message" role="status"></p>
+        <!-- Tabla donde JavaScript dibuja los datos recibidos desde FastAPI. -->
+        <div class="table-wrap"><table><thead id="head"></thead><tbody id="body"></tbody></table></div>
+      </section>
+    </main>
+    <!-- Ventana emergente para ver el detalle de una factura. -->
+    <dialog id="dialog"></dialog>
+    <!-- Carga el comportamiento de la interfaz después de crear el HTML. -->
+    <script src="/app.js"></script>
+  </body>
+</html>
