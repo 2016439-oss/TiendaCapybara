@@ -1,0 +1,42 @@
+body{
+    background: antiquewhite;
+}
+
+
+h1{
+    width: 100%;
+    height: 50px;
+    background-color: rgb(255, 255, 255);
+    margin-top: 5px;
+    box-shadow: #005 5px 10px 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clear: both;
+}
+
+
+.footer{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 83px;
+    background: rgb(27, 26, 26);
+    color: white;
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clear: both;
+}
+.contenedor{
+    width: 250px;
+    height: auto;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    margin: auto;
+    background-color: aliceblue;
+    box-shadow: #005 5px 10px 10px;
+}
