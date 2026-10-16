@@ -9,6 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent
 SOURCE_DB = BASE_DIR / "tienda_capybara.db"
 # Vercel solo permite escribir en /tmp, así que allí se trabaja con una copia de la base.
 DB_PATH = Path("/tmp/tienda_capybara.db") if os.environ.get("VERCEL") else SOURCE_DB
+# Cambia cuando se modifica el esquema; así una base antigua se respalda en vez de provocar errores.
+SCHEMA_VERSION = 3
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS cliente (
@@ -21,36 +23,33 @@ CREATE TABLE IF NOT EXISTS vendedor (
   correo TEXT NOT NULL UNIQUE, telefono TEXT NOT NULL, puesto TEXT NOT NULL,
   salario_x_hora REAL NOT NULL CHECK(salario_x_hora >= 0)
 );
-CREATE TABLE IF NOT EXISTS categoria (
-  identificador TEXT PRIMARY KEY, nombre TEXT NOT NULL UNIQUE
-);
-CREATE TABLE IF NOT EXISTS producto (
-  identificador TEXT PRIMARY KEY, marca TEXT NOT NULL, nombre TEXT NOT NULL,
-  categoria TEXT NOT NULL,
-  precio_x_unidad REAL NOT NULL CHECK(precio_x_unidad >= 0),
-  stock INTEGER NOT NULL DEFAULT 0 CHECK(stock >= 0),
-  emoji TEXT NOT NULL DEFAULT '🦫',
-  FOREIGN KEY (categoria) REFERENCES categoria(identificador) ON DELETE RESTRICT
-);
 CREATE TABLE IF NOT EXISTS sucursal (
   identificador TEXT PRIMARY KEY, nombre TEXT NOT NULL, ubicacion TEXT NOT NULL
 );
-CREATE TABLE IF NOT EXISTS factura (
+CREATE TABLE IF NOT EXISTS merch (
+  identificador TEXT PRIMARY KEY, nombre TEXT NOT NULL UNIQUE,
+  precio_x_unidad REAL NOT NULL CHECK(precio_x_unidad >= 0)
+);
+CREATE TABLE IF NOT EXISTS color (
+  identificador TEXT PRIMARY KEY, nombre TEXT NOT NULL UNIQUE
+);
+CREATE TABLE IF NOT EXISTS accesorio (
+  identificador TEXT PRIMARY KEY, nombre TEXT NOT NULL UNIQUE,
+  precio_extra REAL NOT NULL CHECK(precio_extra >= 0)
+);
+CREATE TABLE IF NOT EXISTS pedido (
   identificador TEXT PRIMARY KEY, fecha TEXT NOT NULL,
-  monto_total REAL NOT NULL DEFAULT 0 CHECK(monto_total >= 0),
   metodo_pago TEXT NOT NULL CHECK(metodo_pago IN ('Efectivo', 'Tarjeta', 'SINPE')),
   cliente TEXT NOT NULL, atendido_por TEXT NOT NULL, sucursal TEXT NOT NULL,
+  merch TEXT NOT NULL, cantidad INTEGER NOT NULL CHECK(cantidad > 0),
+  color TEXT NOT NULL, accesorio TEXT NOT NULL,
+  monto_total REAL NOT NULL DEFAULT 0 CHECK(monto_total >= 0),
   FOREIGN KEY (cliente) REFERENCES cliente(cedula) ON DELETE RESTRICT,
   FOREIGN KEY (atendido_por) REFERENCES vendedor(cedula) ON DELETE RESTRICT,
-  FOREIGN KEY (sucursal) REFERENCES sucursal(identificador) ON DELETE RESTRICT
-);
-CREATE TABLE IF NOT EXISTS factura_producto (
-  identificador_factura TEXT NOT NULL, identificador_producto TEXT NOT NULL,
-  cantidad INTEGER NOT NULL CHECK(cantidad > 0),
-  precio_unitario REAL NOT NULL CHECK(precio_unitario >= 0),
-  PRIMARY KEY (identificador_factura, identificador_producto),
-  FOREIGN KEY (identificador_factura) REFERENCES factura(identificador) ON DELETE CASCADE,
-  FOREIGN KEY (identificador_producto) REFERENCES producto(identificador) ON DELETE RESTRICT
+  FOREIGN KEY (sucursal) REFERENCES sucursal(identificador) ON DELETE RESTRICT,
+  FOREIGN KEY (merch) REFERENCES merch(identificador) ON DELETE RESTRICT,
+  FOREIGN KEY (color) REFERENCES color(identificador) ON DELETE RESTRICT,
+  FOREIGN KEY (accesorio) REFERENCES accesorio(identificador) ON DELETE RESTRICT
 );
 """
 
@@ -65,26 +64,22 @@ SEED = {
         ("4-4444-4444", "Mateo", "Salas Brenes", "mateo.salas@correo.com", "8666-4444", "Mayorista"),
         ("5-5555-5555", "Valeria", "Chaves Araya", "valeria.chaves@correo.com", "8555-5555", "Coleccionista"),
     ],
-    "categoria": [("CAT-ROPA", "Ropa"), ("CAT-PELU", "Peluches"), ("CAT-HOGA", "Hogar"), ("CAT-ACCE", "Accesorios")],
     "sucursal": [
         ("SUC-01", "Capy Centro", "San José, Avenida Central"),
         ("SUC-02", "Capy Heredia", "Heredia, frente al parque"),
     ],
-    "producto": [
-        ("P-001", "CapyChill", "Camiseta Capy Chill", "CAT-ROPA", 7500, 40, "👕"),
-        ("P-002", "CapyChill", "Sudadero Capy Zen", "CAT-ROPA", 17500, 25, "🧥"),
-        ("P-003", "Río Naranja", "Gorra Capy Sol", "CAT-ROPA", 6000, 30, "🧢"),
-        ("P-004", "Río Naranja", "Calcetines Capy Spa", "CAT-ROPA", 4250, 60, "🧦"),
-        ("P-005", "SuaveCapy", "Peluche Capy Mediano", "CAT-PELU", 12500, 35, "🧸"),
-        ("P-006", "SuaveCapy", "Peluche Capy Gigante", "CAT-PELU", 29900, 10, "🦫"),
-        ("P-007", "SuaveCapy", "Capy Bebé con Naranja", "CAT-PELU", 7900, 50, "🍊"),
-        ("P-008", "CasaCapy", "Taza Capy Mañanero", "CAT-HOGA", 5600, 45, "☕"),
-        ("P-009", "CasaCapy", "Cojín Capy Siesta", "CAT-HOGA", 9990, 20, "🛋️"),
-        ("P-010", "CasaCapy", "Manta Capy Río", "CAT-HOGA", 14500, 15, "🛏️"),
-        ("P-011", "CapyChill", "Pack Stickers Capy", "CAT-ACCE", 2750, 120, "✨"),
-        ("P-012", "Río Naranja", "Llavero Capy Bolsillo", "CAT-ACCE", 3400, 80, "🔑"),
-        ("P-013", "Río Naranja", "Tote Bag Capy Mercado", "CAT-ACCE", 6600, 55, "👜"),
-        ("P-014", "CapyChill", "Libreta Capy Notas", "CAT-ACCE", 4900, 70, "📓"),
+    "merch": [
+        ("MER-01", "Camiseta", 7500), ("MER-02", "Sudadero", 17500), ("MER-03", "Gorra", 6000),
+        ("MER-04", "Taza", 5600), ("MER-05", "Peluche", 12500), ("MER-06", "Cojín", 9990),
+        ("MER-07", "Tote bag", 6600), ("MER-08", "Libreta", 4900),
+    ],
+    "color": [
+        ("COL-01", "Café capibara"), ("COL-02", "Naranja"), ("COL-03", "Verde hoja"),
+        ("COL-04", "Crema"), ("COL-05", "Negro"),
+    ],
+    "accesorio": [
+        ("ACC-00", "Sin accesorio", 0), ("ACC-01", "Llavero", 3400), ("ACC-02", "Pack de stickers", 2750),
+        ("ACC-03", "Pin metálico", 2200), ("ACC-04", "Bolsa de regalo", 1500),
     ],
 }
 
@@ -114,11 +109,27 @@ def db():
         conn.close()
 
 
+def _respaldar_base_antigua():
+    """Si la base viene de una versión anterior del esquema, se guarda como copia y se crea una nueva."""
+    if not DB_PATH.exists():
+        return
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        version = conn.execute("PRAGMA user_version").fetchone()[0]
+        tablas = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table'").fetchone()[0]
+    finally:
+        conn.close()
+    if tablas and version != SCHEMA_VERSION:
+        DB_PATH.replace(DB_PATH.with_name(DB_PATH.stem + "_anterior.db"))
+
+
 def initialize_database():
     if os.environ.get("VERCEL") and not DB_PATH.exists() and SOURCE_DB.exists():
         shutil.copy(SOURCE_DB, DB_PATH)
+    _respaldar_base_antigua()
     with db() as conn:
         conn.executescript(SCHEMA)
+        conn.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         if conn.execute("SELECT COUNT(*) FROM cliente").fetchone()[0] == 0:
             for table, rows in SEED.items():
                 marks = ", ".join("?" for _ in rows[0])

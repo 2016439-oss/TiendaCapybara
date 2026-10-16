@@ -1,0 +1,60 @@
+/* Hace que el ancho incluya borde y relleno para calcular tamaños con facilidad. */
+* { box-sizing: border-box; }
+/* Define fuente, color y fondo generales de toda la página. */
+body { font-family: system-ui, sans-serif; margin: 0; background: #f6efe3; color: #3a2a1a; }
+/* Da contraste y espacio al encabezado principal. */
+header { background: #6b4423; color: white; padding: 1.6rem max(1rem, calc((100% - 1100px) / 2)); }
+/* Evita un margen extra sobre el título y el subtítulo. */
+header h1 { margin: 0; }
+header p { margin: .2rem 0 0; opacity: .85; }
+/* Centra el contenido y evita que sea demasiado ancho. */
+main { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
+/* Tarjetas de resumen en la parte superior. */
+.summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .7rem; margin-bottom: 1.2rem; }
+.stat { background: white; border-radius: .4rem; padding: .7rem 1rem; border-left: 5px solid #c98a4b; }
+.stat b { display: block; font-size: 1.4rem; color: #6b4423; }
+.stat span { font-size: .8rem; color: #7d6a57; }
+/* Organiza las pestañas en una fila que puede pasar a otra línea. */
+nav { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem; }
+/* Define la apariencia base de todos los botones. */
+button { cursor: pointer; border: 0; border-radius: .4rem; padding: .55rem .8rem; background: #e9d8bd; color: #5a3a1a; font-weight: 600; font: inherit; font-weight: 600; }
+button:hover { filter: brightness(.96); }
+/* Resalta la pestaña seleccionada y el botón principal. */
+button.active, button.primary { background: #8a5a31; color: white; }
+/* Distribuye automáticamente los campos del formulario según el espacio disponible. */
+form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem; padding: 1rem; background: white; border-radius: .4rem; align-items: end; }
+/* Coloca el texto de la etiqueta encima de su campo. */
+label { display: grid; gap: .3rem; font-size: .9rem; min-width: 0; }
+/* Hace que los campos de entrada sean cómodos de leer y tocar. */
+input, select { width: 100%; min-width: 0; padding: .55rem; border: 1px solid #b8a48c; border-radius: .3rem; font: inherit; background: white; color: inherit; }
+input[readonly], select:disabled { background: #efe7d8; }
+/* Da a la tabla todo el ancho disponible y une los bordes de las celdas. */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: white; margin-top: 1rem; font-size: .88rem; }
+/* Separa visualmente cada celda de la tabla. */
+th, td { padding: .5rem; text-align: left; border-bottom: 1px solid #eadfca; }
+th { font-size: .8rem; text-transform: uppercase; color: #7d6a57; }
+/* Reserva espacio para mensajes y usa rojo para errores. */
+#message { min-height: 1.5rem; color: #b91c1c; }
+#message.ok { color: #3f6b2a; }
+/* Mantiene juntos los botones de una fila. */
+td.actions { white-space: nowrap; }
+td.actions button { margin-right: .25rem; padding: .35rem .55rem; font-size: .85rem; }
+/* Diferencia visualmente una acción destructiva. */
+.danger { background: #f3d6cf; color: #8a2515; }
+
+/* ---- Pantalla de compra ---- */
+.panel { background: white; border-radius: .4rem; padding: 1rem; }
+.panel h2 { margin-top: 0; }
+.panel form { padding: 0; }
+.total-box { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; border-top: 1px solid #eadfca; padding-top: .8rem; }
+.total-box .grand { font-size: 1.5rem; font-weight: 700; color: #6b4423; }
+
+/* ---- Detalle del pedido ---- */
+dialog { border: 0; border-radius: .6rem; padding: 1.5rem; width: min(520px, 92vw); color: #3a2a1a; background: #fffdf8; }
+dialog::backdrop { background: rgba(40, 25, 10, .5); }
+dialog h2 { margin-top: 0; }
+dialog dl { display: grid; grid-template-columns: auto 1fr; gap: .35rem 1rem; margin: 0 0 1rem; }
+dialog dt { color: #7d6a57; }
+dialog dd { margin: 0; }
+dialog .grand { font-size: 1.4rem; font-weight: 700; color: #6b4423; }

@@ -1,11 +1,11 @@
-# 🦫 Tienda Capybara
+# Tienda Capybara
 
-Sistema web para una tienda que vende **únicamente merch de capibaras**. Backend con **FastAPI + SQLite** y frontend en HTML, CSS y JavaScript. Sigue la estructura del proyecto del taller mecánico (identificadores de texto, factura con tabla intermedia, API genérica por tabla) adaptada a una tienda con inventario y sucursales.
+Sistema web para una tienda que vende **únicamente merch de capibaras** y trabaja por pedido: el cliente elige el tipo de merch, la cantidad, el color, el accesorio y el lugar donde lo retira. Backend con **FastAPI + SQLite** y frontend en HTML, CSS y JavaScript. Sigue la estructura del proyecto del taller mecánico (identificadores de texto, API genérica por tabla, pestañas con CRUD).
 
 ## Descripción
-- Catálogo con filtro por categoría y búsqueda.
-- Pantalla de compra: factura, artículos, descuento de stock y total en una sola transacción.
-- CRUD completo de clientes, vendedores, categorías, productos, sucursales y facturas desde pestañas.
+- Pantalla de **Compra**: registra el pedido y la API calcula el total.
+- **Pedidos**: consulta con detalle, edición y borrado.
+- CRUD de clientes, vendedores, lugares de retiro, tipos de merch, colores y accesorios.
 - Flujo real: **Frontend → API FastAPI → SQLite**. Los datos no están escritos en el frontend.
 
 ## Tecnologías
@@ -24,12 +24,12 @@ uvicorn main:app --reload
 ```
 Abre <http://127.0.0.1:8000>. Documentación interactiva de la API: <http://127.0.0.1:8000/docs>.
 
-Al arrancar, la API crea las tablas y carga datos iniciales si la base está vacía. Para reiniciar la base, borra `tienda_capybara.db` y vuelve a ejecutar.
+Al arrancar, la API crea las tablas y carga datos iniciales si la base está vacía. Si encuentra una base de una versión anterior del esquema, la guarda como `tienda_capybara_anterior.db` y crea una nueva. Para reiniciar los datos, borra `tienda_capybara.db`.
 
 ## Estructura
 ```
 TiendaCapybara/
-├── main.py                # API FastAPI (modelos, CRUD genérico y reglas de compra)
+├── main.py                # API FastAPI (modelos, CRUD genérico y cálculo del total)
 ├── database.py            # Esquema SQLite, datos iniciales y conexión
 ├── tienda_capybara.db     # Base de datos SQLite
 ├── requirements.txt
@@ -48,13 +48,13 @@ TiendaCapybara/
 | POST | `/api/{tabla}` | Crear |
 | PUT | `/api/{tabla}/{llave}` | Actualizar |
 | DELETE | `/api/{tabla}/{llave}` | Eliminar |
-| GET | `/api/factura/{id}/detalle` | Factura con sus artículos y total |
-| POST | `/api/compra` | Registrar una compra completa (crea la factura) |
-| GET | `/api/resumen` | Totales y productos con stock bajo |
+| GET | `/api/pedido/{id}/detalle` | Pedido con los nombres de cliente, merch, color, accesorio y lugar de retiro |
+| POST | `/api/compra` | Registrar una compra (crea el pedido con identificador, fecha y total) |
+| GET | `/api/resumen` | Pedidos, unidades y total facturado |
 
-Tablas: `cliente`, `vendedor`, `categoria`, `producto`, `sucursal`, `factura` y la intermedia `factura_producto` (su llave lleva dos partes: `/api/factura_producto/FAC-0001/P-001`).
+Tablas: `cliente`, `vendedor`, `sucursal`, `merch`, `color`, `accesorio` y `pedido`.
 
-Errores: 404 no existe, 409 duplicado / stock insuficiente / registro en uso, 422 datos inválidos.
+Errores: 404 no existe, 409 duplicado o registro en uso, 422 datos inválidos.
 
 ## Base de datos
 Diagrama y descripción de tablas en [`docs/ANALISIS.md`](docs/ANALISIS.md).
